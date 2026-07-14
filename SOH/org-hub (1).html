@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIP Organization Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon: #7A1229;
+    --maroon-dark: #591020;
+    --gold: #C9A227;
+    --gold-light: #E8D48A;
+    --cream: #F7F1E4;
+    --paper: #FCF9F1;
+    --ink: #2A1810;
+    --ink-soft: #6B5A4F;
+    --line: #E4D9C2;
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0;}
+  body, input, button, textarea{
+    font-family:'Work Sans', sans-serif;
+    color: var(--ink);
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+  }
+  body{
+    background: var(--cream);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(122,18,41,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+    min-height:100vh;
+  }
+
+  #login-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .seal{
+    width:74px; height:74px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 55%, #9c7d17 100%);
+    border: 3px solid var(--maroon-dark);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-weight:700; font-size:22px; color:var(--maroon-dark);
+    margin: 0 auto 18px auto;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+  }
+  .login-card{
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 18px 40px -20px rgba(89,16,32,0.35);
+    position:relative;
+  }
+  .login-card::before{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px dashed rgba(122,18,41,0.18);
+    border-radius: 2px;
+    pointer-events:none;
+  }
+  .login-title{
+    text-align:center; font-size:24px; font-weight:600; margin:0 0 2px 0;
+    letter-spacing:0.3px;
+  }
+  .login-sub{
+    text-align:center; font-size:13px; color:var(--ink-soft); margin:0 0 28px 0;
+    letter-spacing:0.5px; text-transform:uppercase;
+  }
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block; font-size:12px; font-weight:600; text-transform:uppercase;
+    letter-spacing:0.6px; color: var(--maroon); margin-bottom:6px;
+  }
+  .field input{
+    width:100%; padding:11px 12px; border:1px solid var(--line);
+    background:#fff; border-radius: var(--radius); font-size:14px;
+    outline:none; transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input:focus{
+    border-color: var(--maroon);
+    box-shadow: 0 0 0 3px rgba(122,18,41,0.12);
+  }
+  .btn-primary{
+    width:100%; padding:12px; border:none; border-radius: var(--radius);
+    background: var(--maroon); color: var(--gold-light);
+    font-weight:600; font-size:14px; letter-spacing:0.4px; cursor:pointer;
+    transition: background .15s ease, transform .05s ease;
+    text-transform: uppercase;
+  }
+  .btn-primary:hover{ background: var(--maroon-dark); }
+  .btn-primary:active{ transform: translateY(1px); }
+  .login-note{
+    text-align:center; font-size:11.5px; color: var(--ink-soft); margin-top:16px; line-height:1.5;
+  }
+  .login-error{
+    display:none; background:#fbe4e4; border:1px solid #e0a3a3; color:#8a2c2c;
+    font-size:12.5px; padding:8px 10px; border-radius: var(--radius); margin-bottom:14px;
+  }
+
+  #app{ display:none; min-height:100vh; }
+  header.topbar{
+    background: var(--maroon);
+    color: var(--gold-light);
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 24px;
+    height:64px;
+    position: sticky; top:0; z-index:20;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:600; font-size:18px; }
+  .brand .dot{ width:9px; height:9px; border-radius:50%; background: var(--gold); }
+  nav.navbar{ display:flex; gap:4px; }
+  nav.navbar button{
+    background:transparent; border:none; color: rgba(255,255,255,0.75);
+    font-size:13.5px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase;
+    padding:10px 16px; cursor:pointer; border-bottom:2px solid transparent;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  nav.navbar button:hover{ color:#fff; }
+  nav.navbar button.active{ color: var(--gold-light); border-bottom-color: var(--gold); }
+  .profile-chip{
+    display:flex; align-items:center; gap:8px; cursor:pointer;
+    background: rgba(255,255,255,0.08); padding:6px 12px 6px 6px; border-radius: 20px;
+    border: 1px solid rgba(232,212,138,0.35);
+  }
+  .avatar{
+    width:28px; height:28px; border-radius:50%; background: var(--gold);
+    color: var(--maroon-dark); font-weight:700; font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .profile-chip span{ font-size:13px; font-weight:600; }
+
+  main{ max-width: 1080px; margin: 0 auto; padding: 36px 24px 80px 24px; }
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  .page-head{ margin-bottom: 26px; }
+  .eyebrow{
+    font-size:11.5px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase;
+    color: var(--maroon);
+  }
+  .page-title{ font-size:28px; margin: 4px 0 6px 0; font-weight:600; }
+  .page-desc{ color: var(--ink-soft); font-size:14px; margin:0; }
+
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:18px; }
+  .card{
+    background: var(--paper); border:1px solid var(--line); border-radius: var(--radius);
+    position:relative; overflow:hidden;
+    box-shadow: 0 10px 24px -18px rgba(42,24,16,0.5);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{ transform: translateY(-3px); box-shadow: 0 16px 28px -16px rgba(42,24,16,0.45); }
+  .pin{
+    position:absolute; top:10px; right:12px; width:10px; height:10px; border-radius:50%;
+    background: var(--gold); box-shadow: 0 2px 3px rgba(0,0,0,0.3); z-index:2;
+  }
+  .poster{
+    height:120px; display:flex; align-items:center; justify-content:center;
+    color: rgba(122,18,41,0.55); font-size:12px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;
+    background:
+      repeating-linear-gradient(45deg, rgba(122,18,41,0.06) 0 10px, transparent 10px 20px),
+      var(--cream);
+    border-bottom: 1px dashed var(--line);
+    overflow:hidden;
+  }
+  .poster img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card-body{ padding:14px 16px 16px 16px; }
+  .card-eyebrow{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color: var(--gold); background: var(--maroon); display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+  .card-title{ font-size:16px; font-weight:600; margin:0 0 4px 0; font-family:'Fraunces',serif; }
+  .card-meta{ font-size:12.5px; color: var(--ink-soft); margin:0 0 10px 0; line-height:1.5; }
+  .card-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
+  .org-name{ font-size:12px; font-weight:600; color: var(--maroon); }
+
+  .btn-join{
+    border:1px solid var(--maroon); background:#fff; color:var(--maroon);
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;
+    padding:6px 12px; border-radius:20px; cursor:pointer; transition: all .15s ease;
+  }
+  .btn-join:hover{ background: var(--maroon); color:#fff; }
+  .btn-join.joined{ background: var(--maroon); color:#fff; }
+
+  .event-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .btn-event{
+    border:1px solid var(--maroon); background:#fff; color:var(--maroon);
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;
+    padding:6px 10px; border-radius:20px; cursor:pointer; transition: all .15s ease;
+  }
+  .btn-event:hover{ background: var(--maroon); color:#fff; }
+  .btn-event.joined, .btn-event.notified{ background: var(--maroon); color:#fff; }
+  .event-meta{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+  .event-count{ font-size:12px; color:var(--ink-soft); font-weight:600; }
+
+  .profile-layout{ display:grid; grid-template-columns: 220px 1fr; gap:24px; }
+  .profile-side{
+    background: var(--paper); border:1px solid var(--line); border-radius: var(--radius);
+    padding:20px; height:fit-content;
+  }
+  .profile-side .avatar-big{
+    width:64px; height:64px; border-radius:50%; background: var(--gold);
+    color:var(--maroon-dark); font-weight:700; font-size:22px;
+    display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+  }
+  .profile-side h3{ margin:0 0 2px 0; font-size:17px; }
+  .profile-side .role{ font-size:12px; color: var(--ink-soft); margin-bottom:18px; }
+  .side-link{
+    display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius: var(--radius);
+    font-size:13.5px; font-weight:600; color: var(--ink); cursor:pointer; margin-bottom:4px;
+    border:1px solid transparent;
+  }
+  .side-link:hover{ background: var(--cream); }
+  .side-link.active{ background: var(--maroon); color:#fff; }
+  .side-link .sw{ width:6px; height:6px; border-radius:50%; background: var(--gold); }
+
+  .profile-panel{
+    background: var(--paper); border:1px solid var(--line); border-radius: var(--radius); padding:24px;
+    min-height:280px;
+  }
+  .profile-panel h3{ margin-top:0; }
+  .info-row{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  .info-row:last-child{ border-bottom:none; }
+  .info-row .k{ color: var(--ink-soft); }
+  .info-row .v{ font-weight:600; }
+  .settings-field{ margin-bottom:16px; max-width:360px; }
+  .settings-field label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--maroon); margin-bottom:6px; letter-spacing:0.5px; }
+  .settings-field input{ width:100%; padding:10px 12px; border:1px solid var(--line); border-radius: var(--radius); font-size:14px; }
+  .btn-save{ background: var(--maroon); color:#fff; border:none; padding:10px 18px; border-radius: var(--radius); font-weight:600; font-size:13px; cursor:pointer; text-transform:uppercase; letter-spacing:0.4px; }
+  .btn-save:hover{ background: var(--maroon-dark); }
+  .saved-msg{ display:none; color:#3a7a3a; font-size:12.5px; margin-top:8px; font-weight:600; }
+
+  .my-orgs-list{ display:flex; flex-direction:column; gap:10px; }
+  .my-org-row{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background: var(--cream); border-radius: var(--radius); border:1px solid var(--line); }
+  .my-org-row .name{ font-weight:600; font-size:14px; }
+  .empty{ color: var(--ink-soft); font-size:13.5px; padding: 20px 0; }
+
+  .announce-item{
+    background: var(--paper); border:1px solid var(--line); border-left:4px solid var(--maroon);
+    border-radius: var(--radius); padding:16px 18px; margin-bottom:12px;
+  }
+  .announce-item .a-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+  .announce-item .a-org{ font-size:11.5px; font-weight:700; color: var(--maroon); text-transform:uppercase; letter-spacing:0.5px; }
+  .announce-item .a-date{ font-size:11.5px; color: var(--ink-soft); }
+  .announce-item h4{ margin:0 0 6px 0; font-size:15px; font-family:'Fraunces',serif; }
+  .announce-item p{ margin:0; font-size:13.5px; color: var(--ink-soft); line-height:1.6; }
+
+  @media (max-width: 760px){
+    nav.navbar{ display:none; }
+    .profile-layout{ grid-template-columns: 1fr; }
+    header.topbar{ padding:0 14px; }
+    main{ padding:24px 14px 60px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="seal">TIP</div>
+    <h1 class="login-title">Organization Hub</h1>
+    <p class="login-sub">Student Organization Hub</p>
+    <div class="login-error" id="login-error">Please enter both a username and password.</div>
+    <form id="login-form">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="e.g. jdelacruz" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="off">
+      </div>
+      <button type="submit" class="btn-primary">Log In</button>
+    </form>
+    <p class="login-note">Demo login only — no account is created and nothing is sent anywhere.<br>Any username &amp; password will work.</p>
+  </div>
+</div>
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> TIP Organization Hub</div>
+    <nav class="navbar">
+      <button data-page="organizations" class="active">Organizations</button>
+      <button data-page="events">Events</button>
+      <button data-page="announcements">Announcements</button>
+    </nav>
+    <div class="profile-chip" id="profile-chip">
+      <div class="avatar" id="nav-avatar">S</div>
+      <span id="nav-username">Student</span>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="page active" id="page-organizations">
+      <div class="page-head">
+        <div class="eyebrow">Organization Tab</div>
+        <h2 class="page-title">Organizations</h2>
+        <p class="page-desc">Browse recognized student organizations and join the ones you're part of.</p>
+      </div>
+      <div class="grid" id="orgs-grid"></div>
+    </section>
+
+    <section class="page" id="page-events">
+      <div class="page-head">
+        <div class="eyebrow">Event Tab</div>
+        <h2 class="page-title">Events</h2>
+        <p class="page-desc">Upcoming activities from organizations you follow and beyond.</p>
+      </div>
+      <div class="grid" id="events-grid"></div>
+    </section>
+
+    <section class="page" id="page-announcements">
+      <div class="page-head">
+        <div class="eyebrow">Announcements</div>
+        <h2 class="page-title">Announcements</h2>
+        <p class="page-desc">Latest posts from organization officers.</p>
+      </div>
+      <div id="announce-list"></div>
+    </section>
+
+    <section class="page" id="page-profile">
+      <div class="page-head">
+        <div class="eyebrow">Profile</div>
+        <h2 class="page-title">Your Account</h2>
+      </div>
+      <div class="profile-layout">
+        <div class="profile-side">
+          <div class="avatar-big" id="profile-avatar-big">S</div>
+          <h3 id="profile-name-side">Student</h3>
+          <div class="role">BSIT · IT21S1</div>
+          <div class="side-link active" data-panel="profile"><span class="sw"></span> Profile</div>
+          <div class="side-link" data-panel="vieworgs"><span class="sw"></span> View Orgs</div>
+          <div class="side-link" data-panel="settings"><span class="sw"></span> Settings</div>
+        </div>
+
+        <div class="profile-panel">
+          <div id="panel-profile">
+            <h3>Profile Info</h3>
+            <div class="info-row"><span class="k">Username</span><span class="v" id="info-username">—</span></div>
+            <div class="info-row"><span class="k">Program</span><span class="v">BSIT</span></div>
+            <div class="info-row"><span class="k">Section</span><span class="v">IT21S1</span></div>
+            <div class="info-row"><span class="k">Organizations Joined</span><span class="v" id="info-org-count">0</span></div>
+          </div>
+
+          <div id="panel-vieworgs" style="display:none;">
+            <h3>Your Organizations</h3>
+            <div class="my-orgs-list" id="my-orgs-list"></div>
+          </div>
+
+          <div id="panel-settings" style="display:none;">
+            <h3>Settings</h3>
+            <div class="settings-field">
+              <label for="settings-username">Display Name</label>
+              <input type="text" id="settings-username">
+            </div>
+            <div class="settings-field">
+              <label for="settings-email">Email</label>
+              <input type="text" id="settings-email" placeholder="you@tip.edu.ph">
+            </div>
+            <button class="btn-save" id="save-settings">Save Changes</button>
+            <div class="saved-msg" id="saved-msg">Changes saved.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  var MAX_JOINED_ORGS = 3;
+
+  var orgs = [
+    { id: 1, name: "JPEG", desc: "Join us as we embark on a journey of bold ideas and boundless imagination. Whether you’re exploring new creative works, learning alongside our officers, or sharing your own artistry, JPEG 2026 is ready to take you beyond the ordinary of multimedia.", image: "PICS/JPEG.jpg", joined: false },
+    { id: 2, name: "AWS", desc: "Learn the fundamentals of cloud computing as you dive into core AWS services, including virtual networks, security groups, compute instances, load balancing, and storage.", image: "PICS/AWS.jpg", joined: false },
+    { id: 3, name: "ICONS", desc: "We want to know what games YOU want to see in our upcoming hangouts, tournaments, and events! 🕹️ From chill lobbies to competitive matches, your picks will help shape the next ICONS experience.", image: "PICS/ICONS.jpg", joined: false },
+    { id: 4, name: "TIP Badminton Club", desc: "Casual and competitive badminton training, open tryouts every semester.", image: "PICS/BADMINTON.jpg", joined: false },
+    { id: 5, name: "CADSS", desc: "The Collaborative Analytics and Data Science Society at TIP - Manila is a new student organization for anyone interested in analytics and data science. Our goal is to build a friendly community where you can learn, connect with others, and gain practical experience in this exciting field.", image: "PICS/CADSS.jpg", joined: false }
+  ];
+
+  var events = [
+    { id: 1, title: "Photowalk: Manila After Dark", time: "Jul 25, 2026 - 5:00 PM", org: "JPEG", joined: false, joinedCount: 18, notified: false },
+    { id: 2, title: "Digital Art Exhibit Night", time: "Aug 8, 2026 - 4:00 PM", org: "JPEG", joined: false, joinedCount: 11, notified: false },
+    { id: 3, title: "Community Game Night: Valorant & Mobile Legends", time: "Jul 19, 2026 - 6:00 PM", org: "ICONS", joined: false, joinedCount: 24, notified: false },
+    { id: 4, title: "ICONS Esports Tryouts 2026", time: "Aug 2, 2026 - 1:00 PM", org: "ICONS", joined: false, joinedCount: 9, notified: false },
+    { id: 5, title: "Intramurals Badminton Tryouts", time: "Jul 22, 2026 - 3:00 PM", org: "TIP Badminton Club", joined: false, joinedCount: 14, notified: false },
+    { id: 6, title: "Doubles Ladder Tournament", time: "Aug 12, 2026 - 9:00 AM", org: "TIP Badminton Club", joined: false, joinedCount: 7, notified: false },
+    { id: 7, title: "Intro to Data Science Bootcamp", time: "Jul 29, 2026 - 10:00 AM", org: "CADSS", joined: false, joinedCount: 16, notified: false },
+    { id: 8, title: "Kaggle Study Jam", time: "Aug 14, 2026 - 2:00 PM", org: "CADSS", joined: false, joinedCount: 10, notified: false },
+    { id: 9, title: "AWS Cloud Practitioner Study Session", time: "Jul 31, 2026 - 5:30 PM", org: "AWS", joined: false, joinedCount: 13, notified: false },
+  ];
+
+  var announcements = [
+    { org: "JPEG", date: "Jul 10, 2026", title: "New multimedia showcase is open", body: "Submit your creative work for the next gallery feature before July 30." },
+    { org: "ICONS", date: "Jul 8, 2026", title: "Game night voting is now live", body: "Help decide the next tournament and hangout theme by voting in the Events tab." },
+    { org: "CADSS", date: "Jul 5, 2026", title: "Data science bootcamp registration opens", body: "Join the upcoming beginner-friendly session and meet fellow members this week." },
+    { org: "AWS", date: "Jul 3, 2026", title: "Cloud workshop materials are now available", body: "Review the slides and practice exercises before the next hands-on session." },
+    { org: "TIP Badminton Club", date: "Jul 1, 2026", title: "Open gym sessions begin this week", body: "Drop by for casual drills and training matches with fellow members." },
+    { org: "JPEG", date: "Jun 28, 2026", title: "Photography team meeting moved to Friday", body: "Bring your camera and ideas for the upcoming collaborative shoot." },
+    { org: "ICONS", date: "Jun 26, 2026", title: "Esports tryout slots are filling fast", body: "Sign up early if you want to join the first round of team selections." }
+  ];
+
+  var currentUser = "Student";
+
+  var loginForm = document.getElementById("login-form");
+  var loginError = document.getElementById("login-error");
+
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var usernameBox = document.getElementById("username");
+    var passwordBox = document.getElementById("password");
+    var username = usernameBox.value.trim();
+    var password = passwordBox.value.trim();
+
+    if (username === "" || password === "") {
+      loginError.style.display = "block";
+      return;
+    }
+
+    loginError.style.display = "none";
+    currentUser = username;
+
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    updateUserDisplay(username);
+    renderAll();
+  });
+
+  function updateUserDisplay(name) {
+    var initial = name.charAt(0).toUpperCase();
+    document.getElementById("nav-avatar").textContent = initial;
+    document.getElementById("nav-username").textContent = name;
+    document.getElementById("profile-avatar-big").textContent = initial;
+    document.getElementById("profile-name-side").textContent = name;
+    document.getElementById("info-username").textContent = name;
+    document.getElementById("settings-username").value = name;
+  }
+
+  var navButtons = document.querySelectorAll("nav.navbar button");
+  for (var i = 0; i < navButtons.length; i++) {
+    navButtons[i].addEventListener("click", function () {
+      var pageName = this.getAttribute("data-page");
+      showPage(pageName);
+    });
+  }
+
+  document.getElementById("profile-chip").addEventListener("click", function () {
+    showPage("profile");
+  });
+
+  function showPage(name) {
+    var allPages = document.querySelectorAll(".page");
+    for (var i = 0; i < allPages.length; i++) {
+      allPages[i].classList.remove("active");
+    }
+    document.getElementById("page-" + name).classList.add("active");
+
+    var buttons = document.querySelectorAll("nav.navbar button");
+    for (var j = 0; j < buttons.length; j++) {
+      if (buttons[j].getAttribute("data-page") === name) {
+        buttons[j].classList.add("active");
+      } else {
+        buttons[j].classList.remove("active");
+      }
+    }
+  }
+
+  function countJoinedOrgs() {
+    var total = 0;
+    for (var i = 0; i < orgs.length; i++) {
+      if (orgs[i].joined) {
+        total = total + 1;
+      }
+    }
+    return total;
+  }
+
+  function renderOrgs() {
+    var grid = document.getElementById("orgs-grid");
+    grid.innerHTML = "";
+
+    for (var i = 0; i < orgs.length; i++) {
+      var org = orgs[i];
+
+      var buttonText = "Join";
+      var buttonClass = "btn-join";
+      if (org.joined) {
+        buttonText = "Joined";
+        buttonClass = "btn-join joined";
+      }
+
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="pin"></div>' +
+        '<div class="poster"><img src="' + org.image + '" alt="' + org.name + '"></div>' +
+        '<div class="card-body">' +
+        '  <div class="card-title">' + org.name + "</div>" +
+        '  <p class="card-meta">' + org.desc + "</p>" +
+        '  <div class="card-foot">' +
+        '    <button class="' + buttonClass + '" data-id="' + org.id + '">' + buttonText + "</button>" +
+        "  </div>" +
+        "</div>";
+
+      grid.appendChild(card);
+    }
+
+    var joinButtons = grid.querySelectorAll(".btn-join");
+    for (var j = 0; j < joinButtons.length; j++) {
+      joinButtons[j].addEventListener("click", function () {
+        var id = parseInt(this.getAttribute("data-id"));
+        toggleJoin(id);
+      });
+    }
+  }
+
+  function toggleJoin(id) {
+    var target = null;
+    for (var i = 0; i < orgs.length; i++) {
+      if (orgs[i].id === id) {
+        target = orgs[i];
+        break;
+      }
+    }
+    if (target === null) {
+      return;
+    }
+
+    if (!target.joined && countJoinedOrgs() >= MAX_JOINED_ORGS) {
+      alert("You can only join up to " + MAX_JOINED_ORGS + " organizations. Leave one first if you'd like to join another.");
+      return;
+    }
+
+    target.joined = !target.joined;
+    renderOrgs();
+    renderProfileExtras();
+  }
+
+  function toggleEventJoin(id) {
+    for (var i = 0; i < events.length; i++) {
+      if (events[i].id === id) {
+        if (events[i].joined) {
+          events[i].joinedCount = Math.max(0, events[i].joinedCount - 1);
+        } else {
+          events[i].joinedCount = events[i].joinedCount + 1;
+        }
+        events[i].joined = !events[i].joined;
+        renderEvents();
+        return;
+      }
+    }
+  }
+
+  function toggleEventNotify(id) {
+    for (var i = 0; i < events.length; i++) {
+      if (events[i].id === id) {
+        events[i].notified = !events[i].notified;
+        renderEvents();
+        return;
+      }
+    }
+  }
+
+  function renderEvents() {
+    var grid = document.getElementById("events-grid");
+    grid.innerHTML = "";
+
+    for (var i = 0; i < events.length; i++) {
+      var ev = events[i];
+      var joinButtonClass = ev.joined ? "btn-event joined" : "btn-event";
+      var notifyButtonClass = ev.notified ? "btn-event notified" : "btn-event";
+
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="pin"></div>' +
+        '<div class="card-body">' +
+        '  <span class="card-eyebrow">' + ev.org + "</span>" +
+        '  <div class="card-title">' + ev.title + "</div>" +
+        '  <p class="card-meta">' + ev.time + "</p>" +
+        '  <div class="event-meta">' +
+        '    <span class="event-count">' + ev.joinedCount + ' joined</span>' +
+        '  </div>' +
+        '  <div class="event-actions">' +
+        '    <button class="' + joinButtonClass + ' join-event-btn" data-id="' + ev.id + '">' + (ev.joined ? "Joined" : "Join") + "</button>" +
+        '    <button class="' + notifyButtonClass + ' notify-event-btn" data-id="' + ev.id + '">' + (ev.notified ? "Notify On" : "Notify") + "</button>" +
+        '  </div>' +
+        "</div>";
+
+      grid.appendChild(card);
+    }
+
+    var joinButtons = grid.querySelectorAll(".join-event-btn");
+    for (var j = 0; j < joinButtons.length; j++) {
+      joinButtons[j].addEventListener("click", function () {
+        var id = parseInt(this.getAttribute("data-id"));
+        toggleEventJoin(id);
+      });
+    }
+
+    var notifyButtons = grid.querySelectorAll(".notify-event-btn");
+    for (var k = 0; k < notifyButtons.length; k++) {
+      notifyButtons[k].addEventListener("click", function () {
+        var id = parseInt(this.getAttribute("data-id"));
+        toggleEventNotify(id);
+      });
+    }
+  }
+
+  function renderAnnouncements() {
+    var list = document.getElementById("announce-list");
+    list.innerHTML = "";
+
+    for (var i = 0; i < announcements.length; i++) {
+      var a = announcements[i];
+
+      var item = document.createElement("div");
+      item.className = "announce-item";
+      item.innerHTML =
+        '<div class="a-top">' +
+        '  <span class="a-org">' + a.org + "</span>" +
+        '  <span class="a-date">' + a.date + "</span>" +
+        "</div>" +
+        "<h4>" + a.title + "</h4>" +
+        "<p>" + a.body + "</p>";
+
+      list.appendChild(item);
+    }
+  }
+
+  var sideLinks = document.querySelectorAll(".side-link");
+  for (var i = 0; i < sideLinks.length; i++) {
+    sideLinks[i].addEventListener("click", function () {
+      for (var k = 0; k < sideLinks.length; k++) {
+        sideLinks[k].classList.remove("active");
+      }
+      this.classList.add("active");
+
+      var panelToShow = this.getAttribute("data-panel");
+      var panelNames = ["profile", "vieworgs", "settings"];
+      for (var p = 0; p < panelNames.length; p++) {
+        var panel = document.getElementById("panel-" + panelNames[p]);
+        if (panelNames[p] === panelToShow) {
+          panel.style.display = "block";
+        } else {
+          panel.style.display = "none";
+        }
+      }
+    });
+  }
+
+  function renderProfileExtras() {
+    var joinedOrgs = [];
+    for (var i = 0; i < orgs.length; i++) {
+      if (orgs[i].joined) {
+        joinedOrgs.push(orgs[i]);
+      }
+    }
+
+    document.getElementById("info-org-count").textContent = joinedOrgs.length + " / " + MAX_JOINED_ORGS;
+
+    var list = document.getElementById("my-orgs-list");
+
+    if (joinedOrgs.length === 0) {
+      list.innerHTML = '<div class="empty">You haven\'t joined any organizations yet. Visit the Organizations tab to join one (up to ' + MAX_JOINED_ORGS + ').</div>';
+      return;
+    }
+
+    var html = "";
+    for (var j = 0; j < joinedOrgs.length; j++) {
+      html +=
+        '<div class="my-org-row">' +
+        '  <span class="name">' + joinedOrgs[j].name + "</span>" +
+        '  <button class="btn-join joined" data-id="' + joinedOrgs[j].id + '">Joined</button>' +
+        "</div>";
+    }
+    list.innerHTML = html;
+
+    var leaveButtons = list.querySelectorAll(".btn-join");
+    for (var k = 0; k < leaveButtons.length; k++) {
+      leaveButtons[k].addEventListener("click", function () {
+        var id = parseInt(this.getAttribute("data-id"));
+        toggleJoin(id);
+      });
+    }
+  }
+
+  document.getElementById("save-settings").addEventListener("click", function () {
+    var input = document.getElementById("settings-username");
+    var newName = input.value.trim();
+    if (newName === "") {
+      newName = currentUser;
+    }
+    currentUser = newName;
+    updateUserDisplay(newName);
+
+    var savedMsg = document.getElementById("saved-msg");
+    savedMsg.style.display = "block";
+    setTimeout(function () {
+      savedMsg.style.display = "none";
+    }, 2000);
+  });
+
+  function renderAll() {
+    renderOrgs();
+    renderEvents();
+    renderAnnouncements();
+    renderProfileExtras();
+  }
+</script>
+</body>
+</html>
